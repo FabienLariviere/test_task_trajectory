@@ -6,7 +6,8 @@ import requests
 
 class Vehicle:
     def __init__(
-            self, name: str, model: str, year: int, color: str, price: int, latitude: float, longitude: float, id: int | None = None
+            self, name: str, model: str, year: int, color: str, price: int, latitude: float, longitude: float,
+            id: int | None = None
     ):
         self.id = id
         self.name = name
@@ -33,7 +34,7 @@ class VehicleManager:
     def _request(self, method: Literal['GET', 'POST', 'PUT', 'DELETE'], endpoint: str,
                  **kwargs) -> dict | None:
 
-        with self._session.request(method, self.url+endpoint, **kwargs) as r:
+        with self._session.request(method, self.url + endpoint, **kwargs) as r:
             if 200 > r.status_code >= 400:
                 # можно сделать кастомный эксепшен
                 raise ConnectionError(r.status_code, r.content)
@@ -89,8 +90,8 @@ class VehicleManager:
     def get_distance(self, id1, id2) -> float:
         vehicle1, vehicle2 = self.get_vehicle(id1), self.get_vehicle(id2)
         return calculate_distance(
-            (radians(vehicle1.latitude), radians(vehicle1.longitude)),
-            (radians(vehicle2.latitude), radians(vehicle2.longitude))
+            (vehicle1.latitude, vehicle1.longitude),
+            (vehicle2.latitude, vehicle2.longitude)
         )
 
     def get_nearest_vehicle(self, id: int) -> Vehicle:
@@ -99,8 +100,8 @@ class VehicleManager:
 
         vehicle_with_distance = {
             vehicle: calculate_distance(
-                (radians(point_vehicle.latitude), radians(point_vehicle.longitude)),
-                (radians(vehicle.latitude), radians(vehicle.longitude))
+                (point_vehicle.latitude, point_vehicle.longitude),
+                (vehicle.latitude, vehicle.longitude)
             ) for vehicle in vehicles if vehicle.id != point_vehicle.id
         }
 
@@ -124,7 +125,11 @@ def calculate_distance(pos1: tuple[float, float], pos2: tuple[float, float]) -> 
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = sin(dlat / 2) * sin(dlat / 2) + cos(lat1) * cos(lat2) * sin(dlon / 2) * sin(dlon / 2)
+    a = (
+        sin(radians(dlat) / 2) * sin(radians(dlat) / 2) +
+        cos(radians(lat1)) * cos(radians(lat2)) *
+        sin(radians(dlon) / 2) * sin(radians(dlon) / 2)
+    )
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
     return R * c * 1000
