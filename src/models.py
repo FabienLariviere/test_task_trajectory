@@ -5,17 +5,8 @@ import requests
 
 
 class Vehicle:
-    id: int
-    name: str
-    model: str
-    year: int
-    color: str
-    price: int
-    latitude: float
-    longitude: float
-
     def __init__(
-            self, id: int | None, name: str, model: str, year: int, color: str, price: int, latitude: float, longitude: float
+            self, name: str, model: str, year: int, color: str, price: int, latitude: float, longitude: float, id: int | None = None
     ):
         self.id = id
         self.name = name
